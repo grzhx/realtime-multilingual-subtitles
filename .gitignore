@@ -1,0 +1,21 @@
+# Runtime caches and model artifacts stay inside this project.
+.venv/
+runtime/
+work/
+__pycache__/
+*.pyc
+*.log
+models/*
+cache/*
+logs/*
+outputs/*
+!models/.gitkeep
+!cache/.gitkeep
+!logs/.gitkeep
+!outputs/.gitkeep
+build/
+dist/
+release/
+packaging/.cache/
+*.issig
+cache/subtitle_settings.json

@@ -1,0 +1,76 @@
+[paths]
+models_dir = "models"
+cache_dir = "cache"
+logs_dir = "logs"
+
+[audio]
+sample_rate = 48000
+channels = 2
+block_ms = 100
+
+[asr]
+model_size_or_path = "models/faster-whisper-large-v3-turbo"
+device = "cuda"
+compute_type = "float16"
+language = "auto"
+beam_size = 1
+vad_filter = false
+download_root = "models/faster-whisper-large-v3-turbo"
+cpu_threads = 3
+num_workers = 1
+hallucination_no_speech_prob = 0.62
+hallucination_avg_logprob = -0.75
+hallucination_compression_ratio = 2.4
+
+[stream]
+update_interval_ms = 300
+window_seconds = 2.6
+overlap_seconds = 0.5
+min_speech_ms = 220
+max_segment_seconds = 4.5
+silence_end_ms = 220
+commit_interval_ms = 500
+min_commit_seconds = 1.6
+preview_translation_seconds = 0.9
+sentence_end_ms = 700
+
+[translation]
+enabled = true
+model_id = "models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf"
+backend = "llama_cpp"
+server_executable = "runtime/llama.cpp/llama-server.exe"
+server_context = 2048
+server_timeout = 30.0
+mode = "zh_to_en"
+source_language = "zh"
+target_language = "en"
+bilingual = true
+device = "cuda"
+dtype = "float16"
+# 256 leaves enough room for long captions; short captions stop early and keep
+# the same latency.
+# llama.cpp stops as soon as the translation is complete, so short captions
+# keep the same latency while long captions no longer hit the old 128-token cap.
+max_new_tokens = 256
+context_segments = 2
+segment_seconds = 1.2
+
+[ui]
+font_family = "Segoe UI"
+source_font_size = 22
+translation_font_size = 26
+width = 1100
+height = 150
+bottom_margin = 80
+opacity = 0.92
+background_color = "#000000"
+source_color = "#EEEEEE"
+translation_color = "#FFD75A"
+text_opacity = 1.0
+background_opacity = 0.78
+max_height = 360
+history_enabled = false
+history_display_seconds = 5.0
+history_count = 2
+
+
