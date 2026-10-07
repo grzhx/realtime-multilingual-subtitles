@@ -21,6 +21,8 @@ try {
         }
         if ($LASTEXITCODE -ne 0) { throw 'Python virtual environment creation failed' }
     }
+    & $python -c 'import sys, tkinter; assert sys.version_info >= (3, 11), "Python 3.11 or newer required"'
+    if ($LASTEXITCODE -ne 0) { throw 'Python with Tkinter is required' }
     & $python -m pip install --upgrade pip
     if ($LASTEXITCODE -ne 0) { throw 'pip installation failed' }
     & $python -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
@@ -31,6 +33,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Model download or checksum verification failed' }
     & (Join-Path $ProjectRoot 'setup_gguf.ps1')
     if ($LASTEXITCODE -ne 0) { throw 'llama.cpp installation failed' }
+    & $python -c 'import torch, faster_whisper, soundcard, tkinter; assert torch.cuda.is_available(), "CUDA is unavailable; install a compatible NVIDIA driver"'
+    if ($LASTEXITCODE -ne 0) { throw 'CUDA/dependency validation failed' }
     $marker = @{ version = '0.2.0'; initialized = (Get-Date).ToString('o') }
     $marker | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $ProjectRoot 'cache\initialized.json') -Encoding UTF8
     Write-Host 'Initialization completed. All files are stored inside this directory.'

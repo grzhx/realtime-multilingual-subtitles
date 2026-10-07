@@ -17,7 +17,7 @@ FILES = ['README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'pyproject.toml',
 def copy_tree(source, destination):
     shutil.copytree(source, destination, ignore=shutil.ignore_patterns(
         '__pycache__', '*.pyc', 'site-packages', 'test', 'tests', 'idlelib',
-        'turtledemo'), dirs_exist_ok=True)
+        'turtledemo', '_test*.pyd', '_ctypes_test.pyd'), dirs_exist_ok=True)
 
 
 def archive(source, destination):
@@ -45,6 +45,7 @@ def stage(python_home):
         copy_tree(ROOT / 'src', path / 'src')
     copy_tree(ROOT / 'tests', source / 'tests')
     copy_tree(ROOT / 'packaging', source / 'packaging')
+    copy_tree(ROOT / '.github', source / '.github')
     for folder in ('models', 'cache', 'logs'):
         (source / folder).mkdir(exist_ok=True)
         (source / folder / '.gitkeep').touch()

@@ -123,6 +123,12 @@ class StreamingWhisper:
             self._thread.join(timeout=5)
 
     def _load_model(self) -> None:
+        if self.asr.device == 'cuda':
+            # PyTorch supplies CUDA DLLs in the Windows bootstrap. Load them
+            # before CTranslate2 so a system CUDA Toolkit is not required.
+            import torch
+            if not torch.cuda.is_available():
+                raise RuntimeError('CUDA is unavailable. Install a compatible NVIDIA driver.')
         from faster_whisper import WhisperModel
         logging.getLogger("faster_whisper").setLevel(logging.WARNING)
         logger.info("Loading ASR model: %s", self.asr.model_size_or_path)

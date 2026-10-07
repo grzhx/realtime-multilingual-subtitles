@@ -15,7 +15,7 @@ $env:TMP = $env:TEMP
 New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
 & $python (Join-Path $ProjectRoot 'packaging\stage.py') --python-home $PythonHome
 if ($LASTEXITCODE -ne 0) { throw 'Release staging failed' }
-& $IsccPath (Join-Path $ProjectRoot 'packaging\installer.iss')
+& $IsccPath /Q (Join-Path $ProjectRoot 'packaging\installer.iss')
 if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
 Get-ChildItem (Join-Path $ProjectRoot 'dist') -File | ForEach-Object {
     $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLower()
