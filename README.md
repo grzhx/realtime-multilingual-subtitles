@@ -1,37 +1,40 @@
-# 实时多语言字幕 / Real-time Multilingual Subtitles
+# Real-time Multilingual Subtitles
 
-Windows 本地实时字幕工具。捕获默认扬声器、耳机或 HDMI 的系统输出，使用 Whisper 自动识别多语言语音，通过本地 Qwen 翻译为中文或英文。
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-> 多语言指源语言识别。目标语言目前支持中文、英文和无翻译。当前为实验版本，识别准确率与延迟受音频、驱动及硬件影响。
+A Windows desktop tool for real-time multilingual subtitles. It captures the default speaker, headset, or HDMI output through WASAPI Loopback, recognizes speech locally with Whisper, and translates it locally with Qwen into Chinese or English.
 
-## 功能
+> “Multilingual” describes source-language recognition. Target languages are currently Chinese, English, or no translation. This is an experimental release; accuracy and latency depend on audio, drivers, and hardware.
 
-- WASAPI 系统音频采集，跟随默认输出设备切换和重连。
-- 源语言支持自适应、中文、English；目标语言支持中文、English、无翻译。
-- 实时原文与预翻译持续更新，整句完成后确认，避免音频窗口滚动切成半句。
-- 双语或仅译文，运行中切换语言与显示设置。
-- 无边框置顶字幕，拖动移动、左右边缘调宽度、锁定后鼠标穿透。
-- 字号、颜色、文字与背景透明度独立设置，背景可全透明。
-- 历史字幕逐句换行；最新指定条数受保护，其余按进入历史区的时间移除。
-- 当前字幕行和按钮固定，窗口随内容调整高度；设置自动保存。
+## Features
 
-## 环境要求
+- WASAPI system-audio capture with default-device switching and reconnect.
+- Adaptive, Chinese, or English source language; Chinese, English, or no-translation target.
+- Fast partial subtitles, provisional translation, and complete-sentence confirmation. Audio-window rollover does not create half-sentence history entries.
+- Bilingual or translation-only display with live settings.
+- Borderless topmost overlay, drag movement, edge resize, and click-through lock.
+- Independent font, color, text-opacity, and background-opacity controls, including a fully transparent background.
+- Timed sentence history with a protected number of newest entries.
+- Stable current-line and control-button anchoring while the window resizes.
+- Settings remembered in the project-local cache.
 
-- Windows 10/11 x64，NVIDIA 显卡和近期驱动。
-- 推荐 12GB 以上显存；开发验证机器为 RTX 5070 Ti 16GB。
-- 建议至少 20GB 可用磁盘空间，用于依赖、模型和下载缓存。
-- 首次初始化需要访问 PyPI、PyTorch、Hugging Face 和 GitHub；之后可离线运行。
-- 源码安装使用 Python 3.11 以上，推荐 Python 3.14 x64，必须包含 Tkinter。
+## Requirements
 
-## Windows 安装包
+- Windows 10/11 x64 and a recent NVIDIA driver.
+- An NVIDIA GPU is recommended. The development machine is an RTX 5070 Ti 16GB.
+- About 20GB of free disk space for dependencies, caches, and model weights.
+- Internet access for first initialization: PyPI, PyTorch, Hugging Face, and GitHub. The initialized app runs offline.
+- Source setup requires Python 3.11+ with Tkinter; Python 3.14 x64 is recommended.
 
-从本仓库 Releases 下载 Windows x64 安装器，安装到有写入权限的目录。安装包包含本地 Python 和程序，但不包含大型模型及推理依赖。
+## Windows Installer
 
-首次运行快捷方式打开初始化窗口，安装依赖并下载默认模型、llama.cpp CUDA 运行时。完成后启动字幕，后续启动直接进入字幕窗口。
+Download the Windows x64 installer from [Releases](https://github.com/grzhx/realtime-multilingual-subtitles/releases). It contains the local Python runtime and application source, but not the large model weights or inference dependencies.
 
-网络错误时再次运行快捷方式重试。初始化日志在 `logs/bootstrap.log`，运行日志在 `logs/runtime.log`。安装不需要管理员权限；卸载清理程序文件，模型、日志和用户设置保留。
+The first launch opens initialization, installs dependencies, and downloads the default ASR model, Q4 translation model, and CUDA llama.cpp runtime. Later launches open the subtitle window directly.
 
-## 源码运行
+Initialization can be retried by launching the shortcut again. Bootstrap logs are in `logs/bootstrap.log`; runtime logs are in `logs/runtime.log`. The installer does not require administrator privileges. Uninstall removes program files and keeps models, logs, and user settings.
+
+## Source Setup
 
 ```powershell
 git clone https://github.com/grzhx/realtime-multilingual-subtitles.git
@@ -40,69 +43,69 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\initialize.ps1
 .\run.ps1
 ```
 
-`initialize.ps1` 一次完成虚拟环境、依赖、默认模型和 CUDA 运行时安装。所有下载写入项目目录。
+`initialize.ps1` creates the virtual environment, installs dependencies, downloads the default weights, and installs the CUDA runtime. Downloads stay inside the project directory.
 
 ```powershell
 .\run.ps1 -Config config.no_translation.toml
 ```
 
-上述配置只运行识别，不读取默认界面记忆。运行中启用翻译会加载本地模型。
+This profile runs recognition without translation. Enabling translation from the settings panel loads the local model.
 
-`config.fallback_0_6b.toml` 是可选 Transformers 回退配置，需要另行下载 Qwen3-0.6B；默认初始化只下载 large-v3-turbo 和 4B Q4 GGUF。
+`config.fallback_0_6b.toml` is an optional Transformers fallback and requires a separate Qwen3-0.6B download. The default initializer downloads only large-v3-turbo and the 4B Q4 GGUF.
 
-## 模型和运行时
+## Models and Runtime
 
-| 用途 | 默认组件 | 来源 |
+| Purpose | Default component | Source |
 |---|---|---|
 | ASR | faster-whisper large-v3-turbo | [Hugging Face](https://huggingface.co/mobiuslabsgmbh/faster-whisper-large-v3-turbo) |
-| 翻译 | Qwen3-4B-Instruct-2507 Q4_K_M | [Hugging Face](https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF) |
-| 推理 | llama.cpp b11461 CUDA 12.4 | [GitHub](https://github.com/ggml-org/llama.cpp) |
+| Translation | Qwen3-4B-Instruct-2507 Q4_K_M | [Hugging Face](https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF) |
+| Inference | llama.cpp b11461 CUDA 12.4 | [GitHub](https://github.com/ggml-org/llama.cpp) |
 
-下载固定模型 revision，校验主要权重和运行包 SHA-256。ASR 约 1.5GiB，GGUF 约 2.3GiB。服务只监听本地回环地址的随机端口，使用临时 API key，关闭程序时退出。
+The downloader pins model revisions and verifies the main weights and runtime archives with SHA-256. The ASR weights are about 1.5GiB and the GGUF is about 2.3GiB. The translation server listens only on a random localhost port and exits with the app.
 
-## 使用与配置
+## Usage and Settings
 
-未锁定时拖动主体移动，左右边缘调宽。鼠标进入字幕区域显示设置、关闭按钮；锁定按钮位于当前句右侧。锁定后只保留解锁按钮可点击，其余区域鼠标穿透。
+When unlocked, drag the body to move the overlay or drag either side edge to resize it. Moving the pointer into the overlay shows settings and close controls; the lock button follows the current subtitle line. When locked, only the unlock button remains clickable and the rest of the overlay is click-through.
 
-语言和双语开关立即生效；字号、宽度、颜色、透明度和历史参数点击“应用”生效。默认设置保存至 `cache/subtitle_settings.json`。
+Language and bilingual settings apply immediately. Apply font, width, color, opacity, and history changes from the settings panel. Settings are saved to `cache/subtitle_settings.json`.
 
-历史条数是保护数量，不是硬上限。例如保留 2 条、存在 5 秒：最新 2 条不移除，其他句子进入历史区满 5 秒后移除。当前开放句不计入历史。
+History count protects the newest entries; it is not a hard display cap. For example, with count 2 and display time 5 seconds, the newest two history entries remain protected, while older entries are removed after their original five-second timer expires. The open current sentence is not history.
 
-采集跟随 Windows 默认播放设备，播放器单独指定其他输出时请统一设备。
+## Advanced Configuration
 
-高级参数在 `config.toml`：
+The usual settings belong in the UI. Advanced values are in `config.toml`:
 
-| 参数 | 作用 |
+| Parameter | Purpose |
 |---|---|
-| `asr.compute_type` | 默认 `float16`，显存不足可测试 `int8_float16` |
-| `stream.update_interval_ms` | 原文 partial 更新目标间隔 |
-| `stream.commit_interval_ms` | 稳定词时间戳识别目标间隔 |
-| `stream.max_segment_seconds` | 音频滚动窗口，不等于句子长度 |
-| `stream.sentence_end_ms` | 明显停顿结束句子的时长 |
-| `stream.preview_translation_seconds` | 允许预翻译的稳定音频时长 |
-| `translation.max_new_tokens` | 输出基础预算，长字幕按长度增加 |
-| `ui.history_count` | 保护的最新历史条数 |
-| `ui.history_display_seconds` | 历史字幕存在时间 |
+| `asr.compute_type` | `float16` by default; test `int8_float16` if VRAM is tight |
+| `stream.update_interval_ms` | Partial subtitle update target |
+| `stream.commit_interval_ms` | Stable word-timestamp check interval |
+| `stream.max_segment_seconds` | Audio rollover window, not sentence length |
+| `stream.sentence_end_ms` | Pause duration used to complete a sentence |
+| `stream.preview_translation_seconds` | Stable audio required before provisional translation |
+| `translation.max_new_tokens` | Base output budget; long captions receive more room |
+| `ui.history_count` | Protected newest history entries |
+| `ui.history_display_seconds` | History lifetime starting when an entry is archived |
 
-## 已知限制
+## Limitations
 
-- 音乐、噪声、多人讲话、口音可能错识别。过滤减少音乐幻觉，不能完全排除高置信度错误。
-- 预译文随整句内容修改；句末标点和停顿判断可能有误。
-- 受保护音频、独占模式、部分驱动可能不支持 loopback。
-- 屏幕空间不足时字幕缩小，必要时移动固定行以避免截断。
-- 当前重点支持 NVIDIA CUDA，未验证跨平台或 CPU 低延迟体验。
+- Music, noise, multiple speakers, and accents can cause recognition errors. Low-confidence filtering reduces music hallucinations but cannot remove every high-confidence error.
+- Provisional translation changes as the open sentence grows; punctuation and pause detection can be wrong.
+- Protected audio, exclusive mode, and some drivers may not support loopback.
+- The overlay shrinks text when screen space is limited and may move the anchor to avoid clipping.
+- NVIDIA CUDA is the supported default; cross-platform and CPU low-latency use are not validated.
 
-## 开发与打包
+## Development and Packaging
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\packaging\build.ps1 -PythonHome C:\Python314 -IsccPath path\to\ISCC.exe
 ```
 
-测试保留在仓库。Windows UI 测试需要交互式桌面，模拟测试不依赖 GPU。
+Tests stay in the repository. Windows UI tests require an interactive desktop; simulated tests do not require a GPU.
 
-构建生成源码 ZIP、便携初始化包和 Inno Setup 安装器；输出均位于项目内 `build/`、`dist/`。首次初始化包包含 Python，不包含依赖和模型，所以不是离线完整包。
+The build creates a source ZIP, portable initialization package, and Inno Setup installer in `dist/`. The portable package includes Python but not dependencies or models, so it is not an offline bundle.
 
-## 许可证
+## License
 
-源码采用 [MIT](LICENSE)。模型、Python、llama.cpp、CUDA 和其他依赖保留各自许可证，项目许可证不替代第三方条款。详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+The source is [MIT](LICENSE). Models, Python, llama.cpp, CUDA, and other dependencies retain their own licenses. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

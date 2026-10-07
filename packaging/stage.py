@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = '0.2.0'
-FILES = ['README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'pyproject.toml',
+FILES = ['README.md', 'README.zh-CN.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'pyproject.toml',
          'requirements.txt', 'config.toml', 'config.no_translation.toml',
          'config.fallback_0_6b.toml', 'run.ps1', 'setup.ps1', 'initialize.ps1',
          'setup_gguf.ps1', 'download_models.py', 'launch.py', '.gitignore']
